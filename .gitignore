@@ -1,1 +1,4 @@
 /dist-portable/
+/nbproject/private/
+/build/
+/dist/

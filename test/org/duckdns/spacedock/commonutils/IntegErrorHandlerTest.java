@@ -11,9 +11,9 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author iconoctopus
+ * @author ykonoclast
  */
-public class ErrorHandlerTest
+public class IntegErrorHandlerTest
 {
 
     @Test

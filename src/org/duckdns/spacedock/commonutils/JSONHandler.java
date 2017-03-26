@@ -12,7 +12,7 @@ import javax.json.JsonReader;
 
 /**
  *
- * @author iconoctopus
+ * @author ykonoclast
  */
 public class JSONHandler
 {

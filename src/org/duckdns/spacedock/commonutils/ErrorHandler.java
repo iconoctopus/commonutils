@@ -10,7 +10,7 @@ package org.duckdns.spacedock.commonutils;
  * paramétre envoyé par toutes les méthodes de toutes les classes y étant
  * confrontées
  *
- * @author iconoctopus
+ * @author ykonoclast
  */
 public class ErrorHandler
 {

@@ -13,7 +13,7 @@ import java.util.Properties;
  * exceptions.properties et generalstrings.properties et être situés dans un
  * répertoire de la forme _répertoire-de-sources_/_nom_du_projet_/strings
  *
- * @author iconoctopus
+ * @author ykonoclast
  */
 public class PropertiesHandler
 {

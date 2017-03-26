@@ -10,9 +10,9 @@ import org.junit.Test;
 
 /**
  *
- * @author iconoctopus
+ * @author ykonoclast
  */
-public class PropertiesHandlerTest
+public class IntegPropertiesHandlerTest
 {
 
     @Test
