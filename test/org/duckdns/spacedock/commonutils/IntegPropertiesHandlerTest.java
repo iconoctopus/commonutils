@@ -18,14 +18,14 @@ public class IntegPropertiesHandlerTest
     @Test
     public void testgetString()
     {
-	Assert.assertEquals("erreur d'accès à un fichier de propriétés", PropertiesHandler.getInstance("meugni").getString("pout pouti"));
-	Assert.assertEquals("indice", PropertiesHandler.getInstance("commonutils").getString("indice"));
+	Assert.assertEquals("erreur d'accès à un fichier de propriétés", StringHandler.getInstance("meugni").getString("pout pouti"));
+	Assert.assertEquals("indice", StringHandler.getInstance("commonutils").getString("indice"));
     }
 
     @Test
     public void testgetErrorMessage()
     {
-	Assert.assertEquals("erreur d'accès à un fichier de propriétés", PropertiesHandler.getInstance("meugni").getErrorMessage("pout pouti"));
-	Assert.assertEquals("paramétre aberrant:", PropertiesHandler.getInstance("commonutils").getErrorMessage("param_aberr"));
+	Assert.assertEquals("erreur d'accès à un fichier de propriétés", StringHandler.getInstance("meugni").getErrorMessage("pout pouti"));
+	Assert.assertEquals("paramétre aberrant:", StringHandler.getInstance("commonutils").getErrorMessage("param_aberr"));
     }
 }

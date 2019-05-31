@@ -1,160 +1,75 @@
+/*
+ * Copyright (C) 2019 ykonoclast
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.duckdns.spacedock.commonutils;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
- * Classe chargeant les fichiers de propriétés (notamment strings) et rendant
- * accessibles les informations de configuration
- *
- * Regles de nommage : les propriétés doivent figurer dans deux fichiers :
- * exceptions.properties et generalstrings.properties et être situés dans un
- * répertoire de la forme _répertoire-de-sources_/_nom_du_projet_/strings
  *
  * @author ykonoclast
  */
-public class PropertiesHandler
+class PropertiesHandler
 {
 
-    /**
-     * message d'erreur par défaut
-     */
-    private final static String m_propertiesErrorMessage = "erreur d'accès à un fichier de propriétés";
+    private final String mf_packageName;
 
-    /**
-     * si les propriétés des exceptions ont pu être récupérées
-     */
-    private boolean m_exceptionsRecovered;
+    private final Map<String, Properties> mf_appProperties = new HashMap<>();
 
-    /**
-     * si les propriétés des chaînes ont pu être récupérées
-     */
-    private boolean m_stringsRecovered;
-
-    /**
-     * instances statiques uniques par répertoire de configuration
-     */
-    private final static ArrayList<PropertiesHandler> m_instances = new ArrayList<PropertiesHandler>();
-
-    /**
-     * noms des répertoires de configuration déjà chargés
-     */
-    private final static ArrayList<String> m_repertoiresCharges = new ArrayList<String>();
-
-    /**
-     * Textes des exceptions
-     */
-    private Properties m_exceptionsProperties;
-
-    /**
-     * Textes des chaînes générales (pas d'erreurs)
-     */
-    private Properties m_stringsProperties;
-
-    /**
-     * pseudo-constructeur statique permettant d'accéder à l'instance (la crée
-     * si elle n'existe pas)
-     *
-     * @param p_repertoire le répertoire de configuration à charger
-     * @return l'instance unique
-     */
-    public static PropertiesHandler getInstance(String p_repertoire)
+    PropertiesHandler(String p_package)
     {
-	if (!m_repertoiresCharges.contains(p_repertoire))
-	{
-	    m_repertoiresCharges.add(p_repertoire);
-	    m_instances.add(new PropertiesHandler(p_repertoire));
-	}
-
-	return m_instances.get(m_repertoiresCharges.indexOf(p_repertoire));
+	mf_packageName = p_package.concat(".app.");
     }
 
-    /**
-     * véritable contructeur, appelé par getInstance() si l'instance n'existe
-     * pas. Construit les objets properties à partir des fichiers idoines afin
-     * qu'il ne soit pas nécessaire de le faire de façon synchrone durant le
-     * reste de l'exécution
-     *
-     */
-    private PropertiesHandler(String p_repertoire)
-    {
-	try
-	{
-	    m_exceptionsProperties = readProperties(p_repertoire.concat("/strings/exceptions.properties"));
-	    m_exceptionsRecovered = true;
-	}
-	catch (IOException | NullPointerException e)
-	{
-	    m_exceptionsRecovered = false;
-	}
-
-	try
-	{
-	    m_stringsProperties = readProperties(p_repertoire.concat("/strings/generalstrings.properties"));
-	    m_stringsRecovered = true;
-	}
-	catch (IOException | NullPointerException e)
-	{
-	    m_stringsRecovered = false;
-	}
-    }
-
-    private Properties readProperties(String p_path) throws IOException
+    String getAppProperty(String p_baseFileName, String p_property)
     {
 	//InputStream in = PropertiesHandler.class.getClassLoader().getResourceAsStream("strings/exceptions.properties");
 	/*on utilise le classloader pour récupérer le fichier de propriétés ailleurs que dans le même package : il utilise le classpath.
 	 *On utilise le classloader du thread afin d'être davantage sur qu'il explorera tout le classpath, contrairement au classloader
 	 *de la classe (utilisé dans le bout de code commenté ci-dessus). J'ignore si cela marche bien avec les threads android.
 	 */
-	InputStream in;
-	in = Thread.currentThread().getContextClassLoader().getResourceAsStream(p_path);
 
-	//on construit l'objet propriété demandé avant de le renvoyer
-	Properties result = new Properties();
-	result.load(in);
-	in.close();
-
-	return result;
-    }
-
-    /**
-     *
-     * @param p_property
-     * @return le message d'erreur idoine
-     */
-    public String getErrorMessage(String p_property)
-    {
 	String result;
-	if (m_exceptionsRecovered)
+
+	try
 	{
-	    result = m_exceptionsProperties.getProperty(p_property);
+
+	    if (!mf_appProperties.containsKey(p_baseFileName))
+	    {
+
+		InputStream in;
+		in = Thread.currentThread().getContextClassLoader().getResourceAsStream(mf_packageName.concat(p_baseFileName));
+
+		Properties properties = new Properties();
+		properties.load(in);
+		in.close();
+
+		mf_appProperties.putIfAbsent(p_baseFileName, properties);
+	    }
+
+	    result = mf_appProperties.get(p_baseFileName).getProperty(p_property);
 	}
-	else
+	catch (Exception e)//toute exception (IO, missing ressource etc. entraîne simple renvoi de la chaîne nulle, on ne fait pas pêter les applis pour ça
 	{
-	    result = m_propertiesErrorMessage;
+	    result = "";
 	}
 	return result;
     }
 
-    /**
-     *
-     * @param p_property
-     * @return la chaîne d'usage général (pas de traitement d'erreurs ici)
-     * indiquée en paramétre
-     */
-    public String getString(String p_property)
-    {
-	String result;
-	if (m_stringsRecovered)
-	{
-	    result = m_stringsProperties.getProperty(p_property);
-	}
-	else
-	{
-	    result = m_propertiesErrorMessage;
-	}
-	return result;
-    }
 }

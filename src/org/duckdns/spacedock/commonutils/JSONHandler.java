@@ -14,21 +14,22 @@ import javax.json.JsonReader;
  *
  * @author ykonoclast
  */
-public class JSONHandler
+class JSONHandler
 {
 
-    /**
-     *
-     * @param p_projectName
-     * @param p_filePath un chemin relatif à partir d'un répertoire de la forme
-     * _répertoire-de-sources_/_nom_du_projet_/JSON
-     * @return u objet JSON lu dans le fichier
-     */
-    public static JsonObject loadJsonFile(String p_projectName, String p_filePath)
+    private final String mf_packageName;
+
+    JsonObject loadJsonFile(String p_fileName)
     {
-	String filePath = p_projectName.concat("/JSON/").concat(p_filePath);
+	String filePath = mf_packageName.concat(p_fileName);
 	InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath);//on utilise le classloader du thread et pas de la classe pour plus de sûreté
 	JsonReader reader = Json.createReader(in);
 	return (reader.readObject());
     }
+
+    JSONHandler(String p_package)
+    {
+	mf_packageName = p_package.concat(".JSON.");
+    }
+
 }
