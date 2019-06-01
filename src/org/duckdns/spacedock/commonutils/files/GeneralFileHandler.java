@@ -22,19 +22,20 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import javax.json.JsonObject;
+import org.duckdns.spacedock.commonutils.files.GeneralFileHandler;
 
 /**
  * Classe principale d'accès aux utilitaires de récupération de fichiers
  *
  * @author ykonoclast
  */
-public class FileHandler
+public class GeneralFileHandler
 {
 
     /**
      * instances statiques uniques par package
      */
-    private final static Map<String, FileHandler> m_instances = new HashMap<>();
+    private final static Map<String, GeneralFileHandler> m_instances = new HashMap<>();
 
     /**
      * nom du package de l'instance particulière
@@ -63,11 +64,11 @@ public class FileHandler
      * @param p_package
      * @return
      */
-    public static FileHandler getInstance(String p_package)
+    public static GeneralFileHandler getInstance(String p_package)
     {
 	if (!m_instances.containsKey(p_package))
 	{
-	    m_instances.put(p_package, new FileHandler(p_package));
+	    m_instances.put(p_package, new GeneralFileHandler(p_package));
 	}
 
 	return m_instances.get(p_package);
@@ -79,7 +80,7 @@ public class FileHandler
      * uniquement
      *
      */
-    private FileHandler(String p_package)
+    private GeneralFileHandler(String p_package)
     {
 	m_packageName = p_package.concat(".resources");
     }
@@ -201,7 +202,7 @@ public class FileHandler
     {
 	secureStringHandler(p_locale);
 
-	String message = getInstance(getClass().getPackageName()).getString(p_typeExcep, p_locale);//le message d'érreur standard : issu de commonutils
+	String message = getInstance(getClass().getPackage().getName()).getString(p_typeExcep, p_locale);//le message d'érreur standard : issu de commonutils
 	message = message.concat(m_stringsHandlers.get(p_locale).getErrorMessage(p_propExcep));//le message d'erreur fourni par le package appelant
 	return (message);
     }
@@ -248,7 +249,7 @@ public class FileHandler
      * @return
      * @throws java.io.FileNotFoundException
      */
-    public String getAppProperty(String p_baseFileName, String p_property) throws FileNotFoundException
+    public String getAppProperty(String p_baseFileName, String p_property) throws FileNotFoundException, IOException
     {
 	if (m_PropertiesHandler == null)
 	{

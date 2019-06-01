@@ -1,6 +1,7 @@
 package org.duckdns.spacedock.commonutils.files;
 
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
@@ -16,12 +17,16 @@ class StringHandler
 {
 
     /**
-     * Textes des exceptions
+     * Textes des exceptions on utilise un resourcebundle plutôt qu'un simple
+     * Properties car on a besoin de ses capacités plus avancées (notamment
+     * Locale)
      */
     private final ResourceBundle m_exceptionsProperties;
 
     /**
-     * Textes des chaînes générales (pas d'erreurs)
+     * Textes des chaînes générales (pas d'erreurs) on utilise un resourcebundle
+     * plutôt qu'un simple Properties car on a besoin de ses capacités plus
+     * avancées (notamment Locale)
      */
     private final ResourceBundle m_stringsProperties;
 
@@ -45,7 +50,16 @@ class StringHandler
      */
     String getErrorMessage(String p_property)
     {
-	return m_exceptionsProperties.getString(p_property);
+	String result;
+	try
+	{
+	    result = m_exceptionsProperties.getString(p_property);
+	}
+	catch (MissingResourceException e)
+	{
+	    result = "";
+	}
+	return result;
     }
 
     /**
@@ -56,6 +70,15 @@ class StringHandler
      */
     String getString(String p_property)
     {
-	return m_stringsProperties.getString(p_property);
+	String result;
+	try
+	{
+	    result = m_stringsProperties.getString(p_property);
+	}
+	catch (MissingResourceException e)
+	{
+	    result = "";
+	}
+	return result;
     }
 }

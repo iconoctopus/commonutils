@@ -16,11 +16,69 @@
  */
 package org.duckdns.spacedock.commonutils.files;
 
+import java.util.Locale;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+
 /**
  *
  * @author ykonoclast
  */
 public class UnitStringHandlerTest
 {
+
+    private final StringHandler handler = new StringHandler(getClass().getPackage().getName().concat("/resources"), Locale.getDefault());
+    private final StringHandler handlerKO = new StringHandler(getClass().getPackage().getName().concat("/resources"), Locale.KOREA);
+
+    @Test
+    public void testGetStringDefaultLocaleNominal()
+    {
+	String prop = handler.getString("param_aberr");
+	assertEquals(prop, "paramétre aberrant:");
+
+	prop = handler.getString("mauv_meth");
+	assertEquals(prop, "emploi de la mauvaise méthode dans ce contexte:");
+
+    }
+
+    @Test
+    public void testGetErrorMessageDefaultLocaleNominal()
+    {
+	String prop = handler.getErrorMessage("JSON");
+	assertEquals(prop, "erreur d'accès JSON:");
+
+	prop = handler.getErrorMessage("properties");
+	assertEquals(prop, "erreur d'accès à des propriétés:");
+    }
+
+    @Test
+    public void testGetStringSpecificLocaleNominal()
+    {
+	String prop = handlerKO.getString("un");
+	assertEquals(prop, "deuxKO");
+
+	prop = handlerKO.getString("trois");
+	assertEquals(prop, "quatreKO");
+    }
+
+    @Test
+    public void testGetErrorMessageSpecificLocaleNominal()
+    {
+	String prop = handlerKO.getErrorMessage("msg1");
+	assertEquals(prop, "erreur1KO");
+
+	prop = handlerKO.getErrorMessage("msg2");
+	assertEquals(prop, "erreur2KO");
+    }
+
+    @Test
+    public void testGetErrorMessageError()
+    {
+	String prop = handlerKO.getErrorMessage("TAGAZOK");
+
+	assertEquals("", prop);
+	prop = handler.getString("blurp");
+	assertEquals("", prop);
+    }
 
 }

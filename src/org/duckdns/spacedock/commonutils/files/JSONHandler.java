@@ -43,7 +43,7 @@ class JSONHandler
 	InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(fullPath);//on utilise le classloader du thread et pas de la classe pour plus de sûreté, on charge en effet pour un autre package
 	if (in == null)
 	{
-	    FileHandler.getInstance(getClass().getPackageName()).fichIntrouvable("JSON", p_path, Locale.getDefault());
+	    GeneralFileHandler.getInstance(getClass().getPackage().getName()).fichIntrouvable("JSON", p_path, Locale.getDefault());
 	}
 	JsonReader reader = Json.createReader(in);
 	return (reader.readObject());

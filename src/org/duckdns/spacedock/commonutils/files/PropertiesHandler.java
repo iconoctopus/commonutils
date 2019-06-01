@@ -42,7 +42,8 @@ class PropertiesHandler
     private final String m_repertoire;
 
     /**
-     * ensemble des fichiers de properties déjà chargés
+     * ensemble des fichiers de properties déjà chargés, on utilise un
+     * Properties car on n'a pas besoin des fonctionalités des ResourceBundle
      */
     private final Map<String, Properties> mf_appProperties = new HashMap<>();
 
@@ -65,7 +66,7 @@ class PropertiesHandler
      * @param p_property
      * @return
      */
-    String getAppProperty(String p_path, String p_property) throws FileNotFoundException
+    String getAppProperty(String p_path, String p_property) throws FileNotFoundException, IOException
     {
 	//InputStream in = PropertiesHandler.class.getClassLoader().getResourceAsStream("strings/exceptions.properties");
 	/*on utilise le classloader pour récupérer le fichier de propriétés ailleurs que dans le même package : il utilise le classpath.
@@ -75,29 +76,33 @@ class PropertiesHandler
 
 	String result = "";
 
-	try
+	if (!mf_appProperties.containsKey(p_path))
 	{
-	    if (!mf_appProperties.containsKey(p_path))
+	    InputStream in;
+	    String fullPath = m_repertoire.concat(p_path);
+	    if (!p_path.endsWith(".properties"))
 	    {
-		InputStream in;
-		String fullPath = m_repertoire.concat(p_path);
-		if (!p_path.endsWith(".properties"))
-		{
-		    fullPath = fullPath.concat(".properties");
-		}
-		in = Thread.currentThread().getContextClassLoader().getResourceAsStream(fullPath);
-
+		fullPath = fullPath.concat(".properties");
+	    }
+	    in = Thread.currentThread().getContextClassLoader().getResourceAsStream(fullPath);
+	    if (in == null)
+	    {
+		GeneralFileHandler.getInstance(getClass().getPackage().getName()).fichIntrouvable("properties", p_path, Locale.getDefault());
+	    }
+	    else
+	    {
 		Properties properties = new Properties();
 		properties.load(in);
 		in.close();
 
 		mf_appProperties.putIfAbsent(p_path, properties);
 	    }
-	    result = mf_appProperties.get(p_path).getProperty(p_property);
 	}
-	catch (IOException e)
+	String preRes = mf_appProperties.get(p_path).getProperty(p_property);
+
+	if (preRes != null)
 	{
-	    FileHandler.getInstance(getClass().getPackageName()).fichIntrouvable("properties", p_path, Locale.getDefault());
+	    result = preRes;
 	}
 	return result;
     }

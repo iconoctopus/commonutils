@@ -16,11 +16,55 @@
  */
 package org.duckdns.spacedock.commonutils.files;
 
-/**
- *
- * @author ykonoclast
- */
-public class UnitJSONHandlerTest
+import java.io.FileNotFoundException;
+import javax.json.JsonObject;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import org.junit.Test;
+
+public class UnitJSONHandlerTest//on ne mocke pas, les mocks sont plus utiles pour les moments où il faut contrôler les valeurs de retour
 {
 
+    private JSONHandler handler = new JSONHandler(getClass().getPackage().getName().concat("/resources"));
+
+    @Test
+    public void testloadJsonFileNominal() throws FileNotFoundException
+    {
+
+	//extension .json
+	JsonObject object = handler.loadJsonFile("json.json");
+	assertEquals((object.getString("name")), "json.json");
+
+	//extension .JSON
+	object = handler.loadJsonFile("json.JSON");
+	assertEquals((object.getString("name")), "json.JSON");
+
+	//extension non mentionnée
+	object = handler.loadJsonFile("jsonsansext");
+	assertEquals((object.getString("name")), "jsonsansext");
+    }
+
+    @Test
+    public void testloadJsonFileSousRep() throws FileNotFoundException
+    {
+
+	//test sous-répertoire
+	JsonObject object = handler.loadJsonFile("sousrep/sousrep.json");
+	assertEquals((object.getString("name")), "sousrep.json");
+    }
+
+    @Test
+    public void testloadJsonFileErreur() throws FileNotFoundException
+    {
+	try
+	{
+	    //test émission exception si fichier non trouvé
+	    handler.loadJsonFile("tarace");
+	    fail();
+	}
+	catch (FileNotFoundException e)
+	{
+	    assertEquals("fichier introuvable:erreur d'accès JSON:tarace", e.getMessage());
+	}
+    }
 }
