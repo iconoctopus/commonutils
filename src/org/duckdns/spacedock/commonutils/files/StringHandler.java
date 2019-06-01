@@ -1,15 +1,14 @@
-package org.duckdns.spacedock.commonutils;
+package org.duckdns.spacedock.commonutils.files;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
- * Classe chargeant les fichiers de propriétés (notamment strings) et rendant
- * accessibles les informations de configuration
+ * Classe chargeant les Strings d'un projet pour une Locale donnée
  *
- * Regles de nommage : les propriétés doivent figurer dans deux fichiers :
+ * Regles de nommage : les Strings doivent figurer dans deux fichiers :
  * exceptions.properties et generalstrings.properties et être situés dans un
- * répertoire de la forme _répertoire-de-sources_/_nom_du_projet_/strings
+ * répertoire de la forme <package>/resources/strings
  *
  * @author ykonoclast
  */
@@ -17,21 +16,24 @@ class StringHandler
 {
 
     /**
-     * Textes des exceptions, un bundle de ressources par locale
+     * Textes des exceptions
      */
-    //private Properties m_exceptionsProperties;
     private final ResourceBundle m_exceptionsProperties;
 
     /**
-     * Textes des chaînes générales (pas d'erreurs), un bundle de ressources par
-     * locale
+     * Textes des chaînes générales (pas d'erreurs)
      */
-    //private Properties m_stringsProperties;
     private final ResourceBundle m_stringsProperties;
 
+    /**
+     * constructeur : charge les deux fichiers de propriétés traités par cette
+     * classe pour la locale donnée
+     *
+     * @param p_package
+     * @param p_locale
+     */
     StringHandler(String p_package, Locale p_locale)
     {
-
 	m_stringsProperties = ResourceBundle.getBundle(p_package.concat(".strings.generalstrings"), p_locale);
 	m_exceptionsProperties = ResourceBundle.getBundle(p_package.concat(".strings.exceptions"), p_locale);
     }
@@ -54,7 +56,6 @@ class StringHandler
      */
     String getString(String p_property)
     {
-
 	return m_stringsProperties.getString(p_property);
     }
 }

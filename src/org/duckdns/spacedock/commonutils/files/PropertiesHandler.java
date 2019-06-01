@@ -14,30 +14,58 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.duckdns.spacedock.commonutils;
+package org.duckdns.spacedock.commonutils.files;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
 /**
+ * Classe chargeant les Properties (hors Strings générales et messages d'erreur)
+ * d'un projet
+ *
+ * Regles de nommage : les fichiers doivent figurer dans le répertoire
+ * <package>/resources/app
  *
  * @author ykonoclast
  */
 class PropertiesHandler
 {
 
-    private final String mf_packageName;
+    /**
+     * le répertoire dans lequel chercher les fichiers des properties
+     */
+    private final String m_repertoire;
 
+    /**
+     * ensemble des fichiers de properties déjà chargés
+     */
     private final Map<String, Properties> mf_appProperties = new HashMap<>();
 
+    /**
+     * Constructeur
+     *
+     * @param p_package
+     */
     PropertiesHandler(String p_package)
     {
-	mf_packageName = p_package.concat(".app.");
+	m_repertoire = p_package.replace(".", "/").concat("/app/");
     }
 
-    String getAppProperty(String p_baseFileName, String p_property)
+    /**
+     * renvoie la property demandée dans le fichier au bout du chemin (relatif
+     * au répertoire resources/app du package) indiqué. Construit l'objet
+     * prperty nécessaire si celui-ci n'existe pas déjà.
+     *
+     * @param p_path
+     * @param p_property
+     * @return
+     */
+    String getAppProperty(String p_path, String p_property) throws FileNotFoundException
     {
 	//InputStream in = PropertiesHandler.class.getClassLoader().getResourceAsStream("strings/exceptions.properties");
 	/*on utilise le classloader pour récupérer le fichier de propriétés ailleurs que dans le même package : il utilise le classpath.
@@ -45,31 +73,32 @@ class PropertiesHandler
 	 *de la classe (utilisé dans le bout de code commenté ci-dessus). J'ignore si cela marche bien avec les threads android.
 	 */
 
-	String result;
+	String result = "";
 
 	try
 	{
-
-	    if (!mf_appProperties.containsKey(p_baseFileName))
+	    if (!mf_appProperties.containsKey(p_path))
 	    {
-
 		InputStream in;
-		in = Thread.currentThread().getContextClassLoader().getResourceAsStream(mf_packageName.concat(p_baseFileName));
+		String fullPath = m_repertoire.concat(p_path);
+		if (!p_path.endsWith(".properties"))
+		{
+		    fullPath = fullPath.concat(".properties");
+		}
+		in = Thread.currentThread().getContextClassLoader().getResourceAsStream(fullPath);
 
 		Properties properties = new Properties();
 		properties.load(in);
 		in.close();
 
-		mf_appProperties.putIfAbsent(p_baseFileName, properties);
+		mf_appProperties.putIfAbsent(p_path, properties);
 	    }
-
-	    result = mf_appProperties.get(p_baseFileName).getProperty(p_property);
+	    result = mf_appProperties.get(p_path).getProperty(p_property);
 	}
-	catch (Exception e)//toute exception (IO, missing ressource etc. entraîne simple renvoi de la chaîne nulle, on ne fait pas pêter les applis pour ça
+	catch (IOException e)
 	{
-	    result = "";
+	    FileHandler.getInstance(getClass().getPackageName()).fichIntrouvable("properties", p_path, Locale.getDefault());
 	}
 	return result;
     }
-
 }
